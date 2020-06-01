@@ -55,19 +55,23 @@ public class TopicReader {
 
     private void handleTransactionOperation(String consumerName, int value) {
         synchronized (transactionMonitor) {
-            if (value == 0)
+            if (value == 0) {
+                if (transactionConsumer != null)
+                    commitTransaction();
                 transactionConsumer = consumerName;
-            else if (value == -1) {
-                synchronized (commitMonitor) {
-                    transactionConsumer = null;
-                    //Monitor.signalAll(commitMonitors);
-                    //commitMonitors.clear();
-                    commitMonitor.doNotify();
-                }
-            }
+            } else if (value == -1)
+                commitTransaction();
         }
     }
 
+    private void commitTransaction() {
+        synchronized (commitMonitor) {
+            transactionConsumer = null;
+            //Monitor.signalAll(commitMonitors);
+            //commitMonitors.clear();
+            commitMonitor.doNotify();
+        }
+    }
 
     public int readValue() {
         synchronized (readMonitor) {

@@ -6,10 +6,12 @@ public class Monitor {
     private boolean isSignalled = false;
     private int waiting = 0;
 
-    public synchronized void doNotify() {
-        notify();
-        isSignalled = true;
-        waiting--;
+    public void doNotify() {
+        synchronized (this) {
+            notify();
+            isSignalled = true;
+            waiting--;
+        }
     }
 
 
@@ -17,25 +19,24 @@ public class Monitor {
         return isSignalled;
     }
 
-    public static void signalAll(ArrayList<Monitor> commitMonitors) {
-        for (Monitor m : commitMonitors)
-            m.doNotify();
-    }
-
     public boolean clear() {
-        if (waiting == 0) {
-            isSignalled = false;
-            return true;
+        synchronized (this) {
+            if (waiting == 0) {
+                isSignalled = false;
+                return true;
+            }
+            return false;
         }
-        return false;
     }
 
     public void doWait() {
-        waiting++;
-        try {
-            wait();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        synchronized (this) {
+            waiting++;
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
