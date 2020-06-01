@@ -6,12 +6,13 @@ import java.util.ArrayList;
 
 public class Monitor {
     private boolean isSignalled = false;
-    private ArrayList<Thread> waiting = new ArrayList<>();
+    private volatile ArrayList<Thread> waiting = new ArrayList<>();
+    private final Object o = new Object();
 
     public void doNotify() {
-        synchronized (this) {
+        synchronized (o) {
             isSignalled = true;
-            notify();
+            o.notifyAll();
         }
     }
 
@@ -25,7 +26,7 @@ public class Monitor {
     }
 
     public void doWait() {
-        synchronized (this) {
+        synchronized (o) {
             System.out.println("hi");
             System.out.println(waiting.size());
             while (!isSignalled) {
@@ -35,7 +36,7 @@ public class Monitor {
                     if (!waiting.contains(thread))
                         waiting.add(thread);
                     System.out.println("$" + waiting.size());
-                    wait();
+                    o.wait();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
