@@ -1,42 +1,48 @@
 package Broker;
 
+import org.w3c.dom.ls.LSOutput;
+
 import java.util.ArrayList;
 
 public class Monitor {
     private boolean isSignalled = false;
-    private int waiting = 0;
+    private ArrayList<Thread> waiting = new ArrayList<>();
 
     public void doNotify() {
         synchronized (this) {
-            notify();
             isSignalled = true;
-            waiting--;
+            notify();
         }
     }
 
-
-    public boolean isSignalled() {
-        return isSignalled;
-    }
-
-    public boolean clear() {
+    private void clear() {
         synchronized (this) {
-            if (waiting == 0) {
+            waiting.remove(Thread.currentThread());
+            if (waiting.size() == 0) {
                 isSignalled = false;
-                return true;
             }
-            return false;
         }
     }
 
     public void doWait() {
         synchronized (this) {
-            waiting++;
-            try {
-                wait();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            System.out.println("hi");
+            System.out.println(waiting.size());
+            while (!isSignalled) {
+                System.out.println("hi2");
+                try {
+                    Thread thread = Thread.currentThread();
+                    if (!waiting.contains(thread))
+                        waiting.add(thread);
+                    System.out.println("$" + waiting.size());
+                    wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+            System.out.println("$$" + waiting.size());
+            clear();
+            System.out.println("$$$" + waiting.size());
         }
     }
 }

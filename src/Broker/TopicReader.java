@@ -34,6 +34,7 @@ public class TopicReader {
 
     private int getInsertValue(String consumerName) {
         int value = readValue();
+        //System.out.println(value);
         if (value <= 0)
             handleTransactionOperation(consumerName, value);
         return value;
@@ -41,16 +42,17 @@ public class TopicReader {
 
     private int getTransactionValue(String consumerName) {
         synchronized (transactionMonitor) {
-            if (transactionConsumer != null && !consumerName.equals(transactionConsumer)) {
-                synchronized (commitMonitor) {
-                    while (!commitMonitor.isSignalled())
-                        commitMonitor.doWait();
-                    commitMonitor.clear();
-                }
-            }
+            if (transactionConsumer == null || consumerName.equals(transactionConsumer))
+                return getInsertValue(consumerName);
         }
 
-        return getInsertValue(consumerName);
+        synchronized (transactionMonitor) {
+            System.out.println(consumerName);
+            commitMonitor.doWait();
+            System.out.println(consumerName + " -- ");
+            //return get(consumerName);
+            return -4;
+        }
     }
 
     private void handleTransactionOperation(String consumerName, int value) {
@@ -65,12 +67,11 @@ public class TopicReader {
     }
 
     private void commitTransaction() {
-        synchronized (commitMonitor) {
-            transactionConsumer = null;
-            //Monitor.signalAll(commitMonitors);
-            //commitMonitors.clear();
-            commitMonitor.doNotify();
-        }
+        //System.out.println(transactionConsumer + "**");
+        transactionConsumer = null;
+        //Monitor.signalAll(commitMonitors);
+        //commitMonitors.clear();
+        commitMonitor.doNotify();
     }
 
     public int readValue() {

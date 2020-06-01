@@ -85,13 +85,7 @@ public class TopicWriter {
             transactions.remove(producerName);
         }
         synchronized (writeMonitor) {
-            while (!commitMonitor.isSignalled()) {
-                try {
-                    commitMonitor.wait();
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
+            commitMonitor.doWait();
         }
     }
 
