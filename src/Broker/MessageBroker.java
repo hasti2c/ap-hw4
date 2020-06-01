@@ -22,11 +22,11 @@ public class MessageBroker {
         topics.get(topic).put(producerName, value);
     }
 
-    public ArrayList<Integer> get(String topic, String groupName) throws NoSuchTopicException {
+    public ArrayList<Integer> get(String topic, String groupName, String consumerName) throws NoSuchTopicException {
         synchronized (topicsMonitor) {
             if (!topics.containsKey(topic))
                 throw new NoSuchTopicException(topic);
         }
-        return topics.get(topic).get(groupName);
+        return topics.get(topic).get(groupName, consumerName);
     }
 }

@@ -1,6 +1,7 @@
 package Logger;
 
 import Broker.Monitor;
+import Broker.Topic;
 
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
@@ -30,6 +31,10 @@ public class Logger extends Thread {
         if (!loggerInstances.containsKey(topic))
             loggerInstances.put(topic, new Logger(topic));
         return loggerInstances.get(topic);
+    }
+
+    public static Logger getInstance(Topic topic) {
+        return getInstance(topic.getName());
     }
 
     @Override

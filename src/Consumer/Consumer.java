@@ -17,7 +17,7 @@ public class Consumer extends Thread {
     }
 
     private ArrayList<Integer> get() throws NoSuchTopicException {
-        return messageBroker.get(getTopicName(), consumerGroup.getGroupName());
+        return messageBroker.get(getTopicName(), consumerGroup.getGroupName(), consumerName);
     }
 
     public void run() {

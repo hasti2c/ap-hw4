@@ -1,10 +1,14 @@
 package Broker;
 
+import Logger.Logger;
+
 import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
+
+import static Logger.LogType.INFO;
 
 public class TopicReader {
     private Topic topic;
@@ -20,7 +24,7 @@ public class TopicReader {
         }
     }
 
-    ArrayList<Integer> get() {
+    ArrayList<Integer> get(String consumerName) {
         synchronized (transactionMonitor) {
             ArrayList<Integer> ret = new ArrayList<>();
             int value = readValue();
@@ -30,17 +34,18 @@ public class TopicReader {
                 ret.add(value);
                 return ret;
             }
-            return readTransaction();
+            return readTransaction(consumerName);
         }
     }
 
-    private ArrayList<Integer> readTransaction() {
+    private ArrayList<Integer> readTransaction(String consumerName) {
         ArrayList<Integer> ret = new ArrayList<>();
         int value = readValue();
         while (value != -1) {
             ret.add(value);
             value = readValue();
         }
+        Logger.getInstance(topic).requestLog(INFO, consumerName + ": read transaction");
         return ret;
     }
 
