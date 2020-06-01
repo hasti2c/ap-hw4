@@ -4,14 +4,15 @@ import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public class TopicReader {
     private Topic topic;
     private String groupName;
     private RandomAccessFile topicFile;
-    private final Monitor readMonitor = new Monitor(), transactionMonitor = new Monitor(), commitMonitor = new Monitor();
-    //private ArrayList<Monitor> commitMonitors = new ArrayList<>();
-    private String transactionConsumer = null;
+    private final Monitor readMonitor = new Monitor(), transactionMonitor = new Monitor();
 
     TopicReader(Topic topic, String groupName) {
         this.topic = topic;
@@ -23,58 +24,32 @@ public class TopicReader {
         }
     }
 
-    public int get(String consumerName) {
+    ArrayList<Integer> get() {
         synchronized (transactionMonitor) {
-            if (transactionConsumer != null)
-                return getTransactionValue(consumerName);
-            else
-                return getInsertValue(consumerName);
+            ArrayList<Integer> ret = new ArrayList<>();
+            int value = readValue();
+            if (value == -3)
+                return ret;
+            if (value != 0) {
+                ret.add(value);
+                return ret;
+            }
+            return readTransaction();
         }
     }
 
-    private int getInsertValue(String consumerName) {
+    private ArrayList<Integer> readTransaction() {
+        ArrayList<Integer> ret = new ArrayList<>();
         int value = readValue();
-        //System.out.println(value);
-        if (value <= 0)
-            handleTransactionOperation(consumerName, value);
-        return value;
-    }
-
-    private int getTransactionValue(String consumerName) {
-        synchronized (transactionMonitor) {
-            if (transactionConsumer == null || consumerName.equals(transactionConsumer))
-                return getInsertValue(consumerName);
+        while (value != -1) {
+            ret.add(value);
+            value = readValue();
         }
-
-        synchronized (transactionMonitor) {
-            System.out.println(consumerName);
-            commitMonitor.doWait();
-            System.out.println(consumerName + " -- ");
-            //return get(consumerName);
-            return -4;
-        }
+        return ret;
     }
 
-    private void handleTransactionOperation(String consumerName, int value) {
-        synchronized (transactionMonitor) {
-            if (value == 0) {
-                if (transactionConsumer != null)
-                    commitTransaction();
-                transactionConsumer = consumerName;
-            } else if (value == -1)
-                commitTransaction();
-        }
-    }
-
-    private void commitTransaction() {
-        //System.out.println(transactionConsumer + "**");
-        transactionConsumer = null;
-        //Monitor.signalAll(commitMonitors);
-        //commitMonitors.clear();
-        commitMonitor.doNotify();
-    }
-
-    public int readValue() {
+    //TODO don't move pointer by hand
+    private int readValue() {
         synchronized (readMonitor) {
             int value = 0;
             try {

@@ -3,6 +3,8 @@ package Consumer;
 import Broker.MessageBroker;
 import Broker.NoSuchTopicException;
 
+import java.util.ArrayList;
+
 public class Consumer extends Thread {
     private ConsumerGroup consumerGroup;
     private String consumerName;
@@ -14,8 +16,8 @@ public class Consumer extends Thread {
         this.messageBroker = messageBroker;
     }
 
-    public int get() throws NoSuchTopicException {
-        return messageBroker.get(getTopicName(), consumerGroup.getGroupName(), consumerName);
+    private ArrayList<Integer> get() throws NoSuchTopicException {
+        return messageBroker.get(getTopicName(), consumerGroup.getGroupName());
     }
 
     public void run() {
@@ -28,11 +30,11 @@ public class Consumer extends Thread {
         }
     }
 
-    public String getConsumerName() {
+    String getConsumerName() {
         return consumerName;
     }
 
-    public String getTopicName() {
+    private String getTopicName() {
         return consumerGroup.getTopicName();
     }
 }

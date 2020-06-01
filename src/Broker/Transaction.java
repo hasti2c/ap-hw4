@@ -3,7 +3,7 @@ package Broker;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public class Transaction {
+class Transaction {
 
     private TopicWriter topicWriter;
     private String producerName;

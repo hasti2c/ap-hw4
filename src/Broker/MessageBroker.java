@@ -1,5 +1,6 @@
 package Broker;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,11 +20,11 @@ public class MessageBroker {
         topics.get(topic).put(producerName, value);
     }
 
-    public int get(String topic, String groupName, String consumerName) throws NoSuchTopicException {
+    public ArrayList<Integer> get(String topic, String groupName) throws NoSuchTopicException {
         synchronized (topicsMonitor) {
             if (!topics.containsKey(topic))
                 throw new NoSuchTopicException(topic);
         }
-        return topics.get(topic).get(groupName, consumerName);
+        return topics.get(topic).get(groupName);
     }
 }

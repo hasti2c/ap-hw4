@@ -6,6 +6,7 @@ import Broker.Monitor;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.PrintWriter;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class ConsumerGroup extends Thread {
@@ -47,7 +48,14 @@ public class ConsumerGroup extends Thread {
         }
     }
 
-    public void performAction(Consumer consumer, int value) {
+    void performAction(Consumer consumer, ArrayList<Integer> values) {
+        synchronized (writeMonitor) {
+            for (int value : values)
+                performAction(consumer, value);
+        }
+    }
+
+    private void performAction(Consumer consumer, int value) {
         if (value == -3)
             return;
         synchronized (writeMonitor) {
@@ -56,11 +64,11 @@ public class ConsumerGroup extends Thread {
         }
     }
 
-    public String getGroupName() {
+    String getGroupName() {
         return groupName;
     }
 
-    public String getTopicName() {
+    String getTopicName() {
         return topicName;
     }
 }

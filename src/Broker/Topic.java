@@ -1,11 +1,11 @@
 package Broker;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 
-public class Topic {
+class Topic {
     private String name;
-
     private File topicFile;
     private TopicWriter topicWriter;
     private HashMap<String, TopicReader> topicReaders;
@@ -13,13 +13,12 @@ public class Topic {
 
     Topic(String name) {
         this.name = name;
-
         topicFile = new File(name + ".dat");
         topicWriter = new TopicWriter(this);
         topicReaders = new HashMap<>();
     }
 
-    public File getTopicFile() {
+    File getTopicFile() {
         return topicFile;
     }
 
@@ -27,16 +26,16 @@ public class Topic {
         topicReaders.put(groupName, new TopicReader(this, groupName));
     }
 
-    public int get(String groupName, String consumerName) {
+    ArrayList<Integer> get(String groupName) {
         synchronized (topicReadersMonitor) {
             if(!topicReaders.containsKey(groupName)) {
                 addGroup(groupName);
             }
         }
-        return topicReaders.get(groupName).get(consumerName);
+        return topicReaders.get(groupName).get();
     }
 
-    public void put(String producerName, int value) {
+    void put(String producerName, int value) {
         topicWriter.put(producerName, value);
     }
 }

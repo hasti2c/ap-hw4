@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 
-public class TopicWriter {
+class TopicWriter {
     private RandomAccessFile buffer;
     private Topic topic;
     private HashMap<String, Transaction> transactions;
@@ -22,7 +22,7 @@ public class TopicWriter {
         }
     }
 
-    public void put(String producerName, int value) {
+    void put(String producerName, int value) {
         if(value <= 0) {
             handleTransactionOperation(producerName, value);
         }
@@ -89,10 +89,6 @@ public class TopicWriter {
         }
     }
 
-    /**
-     * This method is used to cancel a transaction.
-     * @return Nothing.
-     */
     private void cancelTransaction(String producerName) {
         if(transactions.containsKey(producerName)) {
             transactions.remove(producerName);
@@ -102,7 +98,7 @@ public class TopicWriter {
         }
     }
 
-    public void writeValue(int value) {
+    void writeValue(int value) {
         try {
             buffer.writeInt(value);
 
@@ -114,7 +110,7 @@ public class TopicWriter {
         }
     }
 
-    public Monitor getWriteMonitor() {
+    Monitor getWriteMonitor() {
         return writeMonitor;
     }
 }
