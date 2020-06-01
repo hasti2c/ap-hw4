@@ -1,16 +1,21 @@
 package Broker;
 
+import Logger.Logger;
+
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.HashMap;
 
-class TopicWriter {
+import static Logger.LogType.ERROR;
+
+public class TopicWriter {
     private RandomAccessFile buffer;
     private Topic topic;
     private HashMap<String, Transaction> transactions;
     private final Monitor transactionsMonitor = new Monitor(), writeMonitor = new Monitor();
+    private Logger logger;
 
     TopicWriter(Topic topic) {
         this.topic = topic;
@@ -20,6 +25,7 @@ class TopicWriter {
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+        logger = Logger.getInstance(topic.getName());
     }
 
     void put(String producerName, int value) {
@@ -58,14 +64,14 @@ class TopicWriter {
 
     private void addTransaction(String producerName) {
         synchronized (transactionsMonitor) {
-            transactions.put(producerName, new Transaction(this, producerName));
+            transactions.put(producerName, new Transaction(this));
         }
     }
 
     private void startTransaction(String producerName) {
         synchronized (transactionsMonitor) {
             if (transactions.containsKey(producerName)) {
-                //TODO - Log the problem in finalizing previous transaction.
+                logger.requestLog(ERROR, "Didn't finalize last transaction");
                 commitTransaction(producerName);
                 transactions.remove(producerName);
             }
@@ -75,7 +81,7 @@ class TopicWriter {
 
     private void commitTransaction(String producerName) {
         if (!transactions.containsKey(producerName)) {
-            //TODO - Log the problem in committing a non-existing transaction.
+            logger.requestLog(ERROR, "No transaction to commit.");
             return;
         }
 
@@ -94,23 +100,19 @@ class TopicWriter {
             transactions.remove(producerName);
         }
         else {
-            //TODO - Log the problem in canceling a non-existing transaction.
+            logger.requestLog(ERROR, "No transaction to cancel.");
         }
     }
 
     void writeValue(int value) {
         try {
             buffer.writeInt(value);
-
-            FileWriter fw = new FileWriter("test.txt", true);
-            fw.write(value + "\n");
-            fw.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    Monitor getWriteMonitor() {
+    public Monitor getWriteMonitor() {
         return writeMonitor;
     }
 }

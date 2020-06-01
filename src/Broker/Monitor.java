@@ -7,14 +7,14 @@ import java.util.ArrayList;
 public class Monitor {
     private boolean isSignalled = false;
 
-    void doNotify() {
+    public void doNotify() {
         synchronized (this) {
             isSignalled = true;
             notifyAll();
         }
     }
 
-    void doWait() {
+    public void doWait() {
         synchronized (this) {
             while (!isSignalled) {
                 try {
@@ -23,6 +23,12 @@ public class Monitor {
                     e.printStackTrace();
                 }
             }
+        }
+    }
+
+    public void clear() {
+        synchronized (this) {
+            isSignalled = false;
         }
     }
 }

@@ -6,12 +6,10 @@ import java.util.Queue;
 class Transaction {
 
     private TopicWriter topicWriter;
-    private String producerName;
     private Queue<Integer> values;
 
-    Transaction(TopicWriter topicWriter, String producerName) {
+    Transaction(TopicWriter topicWriter) {
         this.topicWriter = topicWriter;
-        this.producerName = producerName;
         values = new LinkedList<>();
     }
 

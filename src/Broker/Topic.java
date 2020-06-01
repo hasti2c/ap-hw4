@@ -23,7 +23,7 @@ class Topic {
     }
 
     private void addGroup(String groupName) {
-        topicReaders.put(groupName, new TopicReader(this, groupName));
+        topicReaders.put(groupName, new TopicReader(this));
     }
 
     ArrayList<Integer> get(String groupName) {
@@ -37,5 +37,9 @@ class Topic {
 
     void put(String producerName, int value) {
         topicWriter.put(producerName, value);
+    }
+
+    String getName() {
+        return name;
     }
 }

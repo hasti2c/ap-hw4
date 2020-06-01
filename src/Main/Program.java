@@ -17,7 +17,7 @@ public class Program {
     }
 
     private File getProducerGroupDirectory() {
-        File producerDirectory = new File("pishi/");
+        File producerDirectory = new File("data/");
         if(args.length>0) {
             producerDirectory = new File(args[0]);
         }

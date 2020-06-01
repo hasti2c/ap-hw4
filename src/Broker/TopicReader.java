@@ -4,19 +4,15 @@ import java.io.EOFException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class TopicReader {
     private Topic topic;
-    private String groupName;
     private RandomAccessFile topicFile;
     private final Monitor readMonitor = new Monitor(), transactionMonitor = new Monitor();
 
-    TopicReader(Topic topic, String groupName) {
+    TopicReader(Topic topic) {
         this.topic = topic;
-        this.groupName = groupName;
         try {
             topicFile = new RandomAccessFile(topic.getTopicFile(), "rws");
         } catch (FileNotFoundException e) {
